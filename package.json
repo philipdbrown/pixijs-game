@@ -14,5 +14,8 @@
   "repository": {
     "type": "git",
     "url": "git:://github.com/philipdbrown/pixijs-game.git"
+  },
+  "dependencies": {
+    "pixi.js": "4.0.0"
   }
 }
