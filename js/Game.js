@@ -42,15 +42,9 @@ class Game {
             max: 50
         };
 
-        Game.birdInfo = {
-            delay: 200,
-            max: 15
-        };
-
         Game.bullets = [];
         Game.enemies = [];
         Game.clouds = [];
-        Game.birds = [];
 
         /**
          * Just for Fun.  Can remove later
@@ -94,10 +88,16 @@ class Game {
             Game.setup();
         };
 
+        /**
+         * Load your Assets
+         */
         Game.loader
             .add(`${Game.assetsDir}cloud_1.png`)
             .add(`${Game.assetsDir}cloud_2.png`)
-            .add(`${Game.assetsDir}bird.png`);
+            .add(`${Game.assetsDir}player.png`)
+            .add(`${Game.assetsDir}player_hit.png`)
+            .add(`${Game.assetsDir}enemy.png`)
+            .add(`${Game.assetsDir}bullet.png`);
 
         Game.loader.load(_onAssetsLoaded);
     }
@@ -110,26 +110,134 @@ class Game {
             Game.stage.container.addChild(Game.layers[i]);
         }
 
+        Game.player = new Player({
+            x: 50,
+            y: this.stage.height / 2,
+            speed: 5,
+            scale: 1
+        });
+
+        Game.text = {
+            lifes: new PIXI.Text(`Lifes : ${Game.player.lifes}`, this.textFont),
+            score: new PIXI.Text(`Score : ${Game.player.score}`, this.textFont)
+        };
+
+        Game.text.lifes.position.set(20, 10);
+        Game.text.score.position.set(Game.stage.width - 200, 10);
+        Game.layers.text.addChild(Game.text.lifes);
+        Game.layers.text.addChild(Game.text.score);
+
         Game.loop();
     }
 
     static loop() {
         requestAnimationFrame(Game.loop);   // What does this do?
+
+        switch(Game.gameStatus) {
+            case 0:
+                Game.menu();
+                break;
+            case 1:
+                Game.play();
+                break;
+            case 2:
+                Game.gameOver();
+                break;
+        }
+
         Game.tick++;
         Game.backgroundManager();
         Game.renderer.render(Game.stage.container);
+    }
 
+    static menu() {
+
+    }
+
+    static gameOver() {
+        let text = new PIXI.Text(`Game Over!`, this.textFont);
+        text.position.set((Game.stage.width / 2) - (text.width / 2), (Game.stage.height / 2) - (text.height / 2));
+        Game.layers.text.addChild(text);
+    }
+
+    static play() {
+        Game.contain(Game.player.sprite, {
+            x: this.stage.margin,
+            y: this.stage.margin, 
+            width: this.stage.width - this.stage.margin, 
+            height: this.stage.height - this.stage.margin
+        });
+
+        /**
+         * Enemy Creation
+         */
+        if(Game.tick % Game.enemiesInfo.delay === 0) {
+            let enemy = new Enemy({
+                x: this.stage.width,
+                y: Math.floor((Math.random() * (this.stage.height - 20)) + 20),
+                speed: 5,
+                scale: 1
+            });
+        }
+
+        Game.player.update();
+
+        for(let i in Game.bullets) {
+            Game.bullets[i].update();
+        }
+
+        for(let j in Game.enemies) {
+            Game.enemies[j].update();
+        }
+
+        Game.player.move();
+
+        for(let i in Game.bullets) {
+            Game.bullets[i].move();
+        }
+
+        for(let j in Game.enemies) {
+            Game.enemies[j].move();
+        }
+
+        Game.text.lifes.text = `Lifes : ${Game.player.lifes}`;
+        Game.text.score.text = `Score : ${Game.player.score}`;
+    }
+
+    static contain(sprite, container) {
+        /**
+         * Left
+         */
+        if(sprite.x < container.x) {
+            sprite.x = container.x;
+        }
+
+        /**
+         * Top
+         */
+        if(sprite.y < container.y) {
+            sprite.y = container.y;
+        }
+
+        /**
+         * Right
+         */
+        if(sprite.x + sprite.width > container.width) {
+            sprite.x = container.width - sprite.width;
+        }
+
+        /**
+         * Bottom
+         */
+        if(sprite.y + sprite.height > container.height) {
+            sprite.y = container.height - sprite.height;
+        }
     }
 
     static backgroundManager() {
         if (Game.tick % Game.cloudInfo.delay === 0) {
             let cloud = new Cloud();
         }
-
-        if (Game.tick % Game.birdInfo.delay === 0) {
-            let bird = new Bird();
-        }
-
 
         for (let j in Game.clouds) {
             /**
@@ -141,19 +249,6 @@ class Game {
             }
             else {
                 Game.clouds[j].move();
-            }
-        }
-
-        for (let i in Game.birds) {
-            /**
-             * If the Bird is Not Visible Anymore, Destroy it and Remove from the Array.
-             */
-            if (Game.birds[i].container.position.x < Game.renderer.width * -1.3) {
-                Game.birds[i].destroy();
-                Game.birds.splice(i, 1);
-            }
-            else {
-                Game.birds[i].move();
             }
         }
     }
