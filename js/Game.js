@@ -12,16 +12,16 @@ class Game {
          */
         Game.Container = PIXI.Container;
         Game.autoDetectRenderer = PIXI.autoDetectRenderer;
-        Game.loader = PIXI.loader;
-        Game.resources = PIXI.loader.resources;
+        Game.loader = PIXI.Loader.shared;
+        Game.resources = PIXI.Loader.shared.resources;
         Game.Sprite = PIXI.Sprite;
         Game.TextureCache = PIXI.utils.TextureCache;
         Game.BaseTexture = PIXI.BaseTexture;
         Game.Texture = PIXI.Texture;
         Game.Graphics = PIXI.Graphics;
         Game.Rectangle = PIXI.Rectangle;
-        Game.TilingSprite = PIXI.extras.TilingSprite;
-        Game.MovieClip = PIXI.extras.MovieClip;
+        Game.TilingSprite = PIXI.TilingSprite;
+        Game.MovieClip = PIXI.MovieClip;
 
         Game.stage = {
             width: window.innerWidth,
@@ -60,7 +60,10 @@ class Game {
          * End Just for Fun.
          */
 
-        Game.renderer = new Game.autoDetectRenderer(Game.stage.width, Game.stage.height);
+        Game.renderer = new Game.autoDetectRenderer({
+            "width": Game.stage.width,
+            "height": Game.stage.height
+        });
         Game.renderer.backgroundColor = Game.stage.backgroundColor;
         document.body.appendChild(Game.renderer.view);
 

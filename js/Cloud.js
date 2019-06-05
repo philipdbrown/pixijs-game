@@ -6,7 +6,7 @@ class Cloud {
         this.movement = Math.floor(Math.random() * 6) + 1;
         const file = (Math.random() > 0.5 ? "cloud_1" : "cloud_2");
         
-        this.sprite = new PIXI.Sprite(PIXI.loader.resources["assets/images/" + file + ".png"].texture);
+        this.sprite = new Game.Sprite(Game.resources["assets/images/" + file + ".png"].texture);
         this.sprite.anchor.set(0.5, 0.5);
         this.sprite.position.set(Game.renderer.width * 1.2, Game.renderer.height * Math.random());
         
